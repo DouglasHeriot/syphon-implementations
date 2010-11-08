@@ -14,8 +14,8 @@ void testApp::setup(){
     bSmooth = false;
 	ofSetWindowTitle("graphics example");
     
-	mainOutputSyphonServer.setup("Screen Output", width, height, true);
-	individualTextureSyphonServer.setup("Texture Output", width, height, true);
+	mainOutputSyphonServer.setName("Screen Output");
+	individualTextureSyphonServer.setName("Texture Output");
 
     tex.allocate(width, height, GL_RGBA);    
     

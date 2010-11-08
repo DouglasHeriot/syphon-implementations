@@ -12,7 +12,7 @@
 
 ofxSyphonServer::ofxSyphonServer()
 {
-	bSetup = false;
+	mSyphon = nil;
 }
 
 ofxSyphonServer::~ofxSyphonServer()
@@ -25,58 +25,80 @@ ofxSyphonServer::~ofxSyphonServer()
     [pool drain];
 }
 
-void ofxSyphonServer::setup(string n, int w, int h, bool flip)
+
+void ofxSyphonServer::setName(string n)
 {
-    // Need pool
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     
-	name = n;
-	width = w;
-	height = h;
-	NSString *title = [NSString stringWithCString:name.c_str() 
-												encoding:[NSString defaultCStringEncoding]];
-	mSyphon = [[SyphonServer alloc] initWithName:title context:CGLGetCurrentContext() options:nil];
-	mTex.allocate(width, height, GL_RGBA);
-	bSetup = true;
+	NSString *title = [NSString stringWithCString:n.c_str() 
+										 encoding:[NSString defaultCStringEncoding]];
+	
+	if (!mSyphon)
+	{
+		mSyphon = [[SyphonServer alloc] initWithName:title context:CGLGetCurrentContext() options:nil];
+	}
+	else
+	{
+		[(SyphonServer *)mSyphon setName:title];
+	}
     
     [pool drain];
 }
 
+string ofxSyphonServer::getName()
+{
+	string name;
+	if (mSyphon)
+	{
+		NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+
+		name = [[(SyphonServer *)mSyphon name] cStringUsingEncoding:NSASCIIStringEncoding];
+		
+		[pool drain];
+	}
+	else
+	{
+		name = "Untitled";
+	}
+	return name;
+}
+
 void ofxSyphonServer::publishScreen()
 {
-	if(bSetup)
-    {
-        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
-		mTex.loadScreenData(0, 0, width, height);
-		ofTextureData texData = mTex.getTextureData();
-		[(SyphonServer *)mSyphon publishFrameTexture:texData.textureID textureTarget:texData.textureTarget imageRegion:NSMakeRect(0, 0, width, height) textureDimensions:NSMakeSize(width, height) flipped:NO];
-        
-        [pool drain];
-    } 
-    else 
-    {
-		cout<<"ofxSyphonServer is not setup.  Cannot draw.\n";
-	}
-}
+	int w = ofGetWidth();
+	int h = ofGetHeight();
+	
+	ofTexture tex;
+	tex.allocate(w, h, GL_RGBA);
+	
+	tex.loadScreenData(0, 0, w, h);
+			
+	this->publishTexture(&tex);
+	
+	tex.clear();
+ }
 
 
 void ofxSyphonServer::publishTexture(ofTexture* inputTexture)
 {
     // If we are setup, and our input texture
-	if(bSetup && inputTexture->bAllocated())
+	if(inputTexture->bAllocated())
     {
         NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
         
 		ofTextureData texData = inputTexture->getTextureData();
 
-		[(SyphonServer *)mSyphon publishFrameTexture:texData.textureID textureTarget:texData.textureTarget imageRegion:NSMakeRect(0, 0, texData.width, texData.height) textureDimensions:NSMakeSize(texData.width, texData.height) flipped:texData.bFlipTexture];
-        
+		if (!mSyphon)
+		{
+			mSyphon = [[SyphonServer alloc] initWithName:@"Untitled" context:CGLGetCurrentContext() options:nil];
+		}
+		
+		[(SyphonServer *)mSyphon publishFrameTexture:texData.textureID textureTarget:texData.textureTarget imageRegion:NSMakeRect(0, 0, texData.width, texData.height) textureDimensions:NSMakeSize(texData.width, texData.height) flipped:!texData.bFlipTexture];
         [pool drain];
     } 
     else 
     {
-		cout<<"ofxSyphonServer is not setup, or texture is not properly backed.  Cannot draw.\n";
+		cout<<"ofxSyphonServer texture is not properly backed.  Cannot draw.\n";
 	}
 }
 
