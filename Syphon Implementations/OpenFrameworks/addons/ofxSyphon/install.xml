@@ -22,9 +22,9 @@
 			<folder name="addons/ofxSyphon/src">
 				<src>../../../addons/ofxSyphon/src/ofxSyphon.h</src>
 				<src>../../../addons/ofxSyphon/src/ofxSyphonServer.h</src>
-				<src>../../../addons/ofxSyphon/src/ofxSyphonServer.cpp</src>
-		<!--	<src>../../../addons/ofxSyphon/src/ofxSyphonClient.h</src> -->
-		<!--	<src>../../../addons/ofxSyphon/src/ofxSyphonClient.cpp</src> -->
+				<src>../../../addons/ofxSyphon/src/ofxSyphonServer.mm</src>
+				<src>../../../addons/ofxSyphon/src/ofxSyphonClient.h</src> -->
+				<src>../../../addons/ofxSyphon/src/ofxSyphonClient.mm</src> -->
 		<!--	<src>../../../addons/ofxSyphon/src/ofxSyphonServerDirectory.h</src> -->
 		<!--	<src>../../../addons/ofxSyphon/src/ofxSyphonServerDirectory.cpp</src> -->
 			</folder>

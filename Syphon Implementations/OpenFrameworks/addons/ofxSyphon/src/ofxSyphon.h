@@ -8,6 +8,5 @@
  */
 
 #include "ofMain.h"
-#import <Syphon/Syphon.h>
 #import "ofxSyphonClient.h"
 #import "ofxSyphonServer.h"

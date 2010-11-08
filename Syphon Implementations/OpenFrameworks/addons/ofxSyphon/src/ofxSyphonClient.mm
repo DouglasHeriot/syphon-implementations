@@ -8,6 +8,8 @@
  */
 
 #include "ofxSyphonClient.h"
+#import <Syphon/Syphon.h>
+#import "SyphonNameboundClient.h"
 
 ofxSyphonClient::ofxSyphonClient()
 {
@@ -18,7 +20,7 @@ ofxSyphonClient::~ofxSyphonClient()
 {
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 
-    [mClient release];
+    [(SyphonNameboundClient*)mClient release];
     mClient = nil;
     
     [pool drain];
@@ -44,7 +46,7 @@ void ofxSyphonClient::setApplicationName(string appName)
         
         NSString *name = [NSString stringWithCString:appName.c_str() encoding:[NSString defaultCStringEncoding]];
         
-        [mClient setAppName:name];
+        [(SyphonNameboundClient*)mClient setAppName:name];
 
         [pool drain];
     }
@@ -61,7 +63,7 @@ void ofxSyphonClient::setServerName(string serverName)
         if([name length] == 0)
             name = nil;
         
-        [mClient setName:name];
+        [(SyphonNameboundClient*)mClient setName:name];
     
         [pool drain];
     }    
@@ -73,14 +75,14 @@ void ofxSyphonClient::bind()
 
     if(bSetup)
     {
-     	[mClient lockClient];
-        SyphonClient *client = [mClient client];
+     	[(SyphonNameboundClient*)mClient lockClient];
+        SyphonClient *client = [(SyphonNameboundClient*)mClient client];
    
         latestImage = [client newFrameImageForContext:CGLGetCurrentContext()];
-		NSSize texSize = [latestImage textureSize];
+		NSSize texSize = [(SyphonImage*)latestImage textureSize];
                 
         // we now have to manually make our ofTexture's ofTextureData a proxy to our SyphonImage
-        mTex.texData.textureID = [latestImage textureName];
+        mTex.texData.textureID = [(SyphonImage*)latestImage textureName];
         mTex.texData.textureTarget = GL_TEXTURE_RECTANGLE_ARB;  // Syphon always outputs rect textures.
         mTex.texData.width = texSize.width;
         mTex.texData.height = texSize.height;
@@ -109,8 +111,8 @@ void ofxSyphonClient::unbind()
     {
         mTex.unbind();
 
-        [mClient unlockClient];
-        [latestImage release];
+        [(SyphonNameboundClient*)mClient unlockClient];
+        [(SyphonImage*)latestImage release];
         latestImage = nil;
     }
     else

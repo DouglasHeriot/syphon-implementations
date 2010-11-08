@@ -8,7 +8,6 @@
  */
 
 #include "ofMain.h"
-#import "SyphonNameboundClient.h"
 
 class ofxSyphonClient {
 	public:
@@ -27,8 +26,8 @@ class ofxSyphonClient {
     void draw(float x, float y);
     
 	protected:
-	SyphonNameboundClient *mClient;
-    SyphonImage* latestImage;
+	void* mClient;
+    void* latestImage;
 	ofTexture mTex;
 	int width, height;
 	bool bSetup;
