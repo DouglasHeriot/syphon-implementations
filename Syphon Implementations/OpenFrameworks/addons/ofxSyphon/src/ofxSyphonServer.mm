@@ -2,7 +2,7 @@
  *  ofxSyphonServer.cpp
  *  syphonTest
  *
- *  Created by astellato on 11/6/10.
+ *  Created by astellato,vade,bangnoise on 11/6/10.
  *  
  *  http://syphon.v002.info/license.php
  */
