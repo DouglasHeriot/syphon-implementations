@@ -19,6 +19,7 @@ ofxSyphonClient::~ofxSyphonClient()
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 
     [mClient release];
+    mClient = nil;
     
     [pool drain];
 }
@@ -37,29 +38,33 @@ void ofxSyphonClient::setup()
 
 void ofxSyphonClient::setApplicationName(string appName)
 {
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
-    NSString *name = [NSString stringWithCString:appName.c_str() encoding:[NSString defaultCStringEncoding]];
-    
     if(bSetup)
     {
+        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+        
+        NSString *name = [NSString stringWithCString:appName.c_str() encoding:[NSString defaultCStringEncoding]];
+        
         [mClient setAppName:name];
+
+        [pool drain];
     }
     
-    [pool drain];
 }
 void ofxSyphonClient::setServerName(string serverName)
 {
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
-    NSString *name = [NSString stringWithCString:serverName.c_str() encoding:[NSString defaultCStringEncoding]];
-    
     if(bSetup)
     {
+        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+        
+        NSString *name = [NSString stringWithCString:serverName.c_str() encoding:[NSString defaultCStringEncoding]];
+
+        if([name length] == 0)
+            name = nil;
+        
         [mClient setName:name];
-    }
     
-    [pool drain];
+        [pool drain];
+    }    
 }
 
 void ofxSyphonClient::bind()
@@ -68,30 +73,30 @@ void ofxSyphonClient::bind()
 
     if(bSetup)
     {
-        
      	[mClient lockClient];
         SyphonClient *client = [mClient client];
    
         latestImage = [client newFrameImageForContext:CGLGetCurrentContext()];
 		NSSize texSize = [latestImage textureSize];
-        
+                
         // we now have to manually make our ofTexture's ofTextureData a proxy to our SyphonImage
         mTex.texData.textureID = [latestImage textureName];
-        mTex.texData.textureTarget = GL_TEXTURE_RECTANGLE_ARB;
+        mTex.texData.textureTarget = GL_TEXTURE_RECTANGLE_ARB;  // Syphon always outputs rect textures.
         mTex.texData.width = texSize.width;
         mTex.texData.height = texSize.height;
         mTex.texData.tex_w = texSize.width;
         mTex.texData.tex_h = texSize.height;
-        mTex.texData.tex_u = 0;
-        mTex.texData.tex_t = 0;
+        mTex.texData.tex_t = texSize.width;
+        mTex.texData.tex_u = texSize.height;
         mTex.texData.glType = GL_RGBA;
         mTex.texData.pixelType = GL_UNSIGNED_BYTE;
-        mTex.texData.bFlipTexture = NO;
+        mTex.texData.bFlipTexture = YES;
         mTex.texData.bAllocated = YES;
         
         mTex.bind();
     }
-    
+    else
+		cout<<"ofxSyphonClient is not setup, or is not properly connected to server.  Cannot bind.\n";
     
     [pool drain];
 }
@@ -102,30 +107,30 @@ void ofxSyphonClient::unbind()
     
     if(bSetup)
     {
-
         mTex.unbind();
 
         [mClient unlockClient];
         [latestImage release];
         latestImage = nil;
     }
-    
-    
-    [pool drain];
+    else
+		cout<<"ofxSyphonClient is not setup, or is not properly connected to server.  Cannot unbind.\n";
+
+        [pool drain];
 }
 
 void ofxSyphonClient::draw(float x, float y, float w, float h)
 {
-    bind();
+    this->bind();
     
     mTex.draw(x, y, w, h);
     
-    unbind();
+    this->unbind();
 }
 
 void ofxSyphonClient::draw(float x, float y)
 {
-	draw(x,y, mTex.texData.width, mTex.texData.height);
+	this->draw(x,y, mTex.texData.width, mTex.texData.height);
 }
 
 

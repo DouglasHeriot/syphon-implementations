@@ -52,7 +52,7 @@ string ofxSyphonServer::getName()
 	{
 		NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 
-		name = [[(SyphonServer *)mSyphon name] cStringUsingEncoding:NSASCIIStringEncoding];
+		name = [[(SyphonServer *)mSyphon name] cStringUsingEncoding:[NSString defaultCStringEncoding]];
 		
 		[pool drain];
 	}
