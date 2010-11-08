@@ -10,13 +10,17 @@ void testApp::setup(){
 	
     //ofBackground(0,0,0);
     
-	
     bSmooth = false;
 	ofSetWindowTitle("graphics example");
     
 	mainOutputSyphonServer.setName("Screen Output");
 	individualTextureSyphonServer.setName("Texture Output");
 
+    mClient.setup();
+    
+    mClient.setApplicationName("Simple Server");
+    mClient.setServerName("");
+    
     tex.allocate(width, height, GL_RGBA);    
     
 	ofSetFrameRate(60); // if vertical sync is off, we can go a bit fast... this caps the framerate at 60fps.
@@ -108,12 +112,20 @@ void testApp::draw(){
     
     tex.draw(50, 50);
     
+    // Syphon Stuff
     
+    ofSetColor(255, 255, 255);
+
+    ofEnableAlphaBlending();
+    
+    mClient.draw(50, 50);    
     
 	mainOutputSyphonServer.publishScreen();
     
     individualTextureSyphonServer.publishTexture(&tex);
     
+    ofDrawBitmapString("Note this text is not captured by Syphon since it is drawn after publishing.\nYou can use this to hide your GUI for example.", 150,500);
+
 }
 
 
