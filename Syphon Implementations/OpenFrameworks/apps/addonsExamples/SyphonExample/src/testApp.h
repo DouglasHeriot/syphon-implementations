@@ -3,7 +3,7 @@
 
 
 #include "ofMain.h"
-#include "ofxSyphonServer.h"
+#include "ofxSyphon.h"
 
 class testApp : public ofBaseApp{
 	
@@ -28,6 +28,8 @@ public:
     
 	ofxSyphonServer mainOutputSyphonServer;
 	ofxSyphonServer individualTextureSyphonServer;
+	
+//	ofxSyphonClient mClient;
 };
 
 #endif
