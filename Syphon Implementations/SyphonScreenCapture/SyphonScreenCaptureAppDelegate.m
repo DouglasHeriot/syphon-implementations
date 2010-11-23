@@ -11,6 +11,10 @@
 
 #import <Quartz/Quartz.h>
 
+// Im bad
+//#import "CoreGraphicsServices.h"
+//#import "CGSPrivate.h"
+
 @implementation SyphonScreenCaptureAppDelegate
 
 @synthesize window;
@@ -19,9 +23,13 @@
 @synthesize syServer;
 @synthesize windowsArray;
 
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication
+{
+	return YES;
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    
     captureWindow = [[SyphonCaptureWindow alloc] initWithContentRect:NSMakeRect(22, 0, 640, 480) styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:NO];
     [captureWindow makeKeyAndOrderFront:nil];
     
@@ -41,12 +49,10 @@
     
     // make a new Syphon Server
     syServer = [[SyphonServer alloc] initWithName:@"" context:[fullscreenContext CGLContextObj] options:nil];
-
     
     stupidRenderTimer = [NSTimer timerWithTimeInterval:1.0/60.0 target:self selector:@selector(render) userInfo:nil repeats:YES];
     [stupidRenderTimer retain];
     [[NSRunLoop currentRunLoop] addTimer:stupidRenderTimer forMode:NSRunLoopCommonModes];
-    
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification
@@ -133,9 +139,44 @@
         
         NSDictionary* windowDict = [returned objectAtIndex:0];
         NSDictionary* rectDict = [windowDict valueForKey:(NSString*)kCGWindowBounds]; 
+        
+        // bring the running applications to the front.
+        // The following does not *quite* work. It brings the app, not the window to the front. The window may still be occluded.
+        
+        NSRunningApplication* targetApp = [NSRunningApplication runningApplicationWithProcessIdentifier:(pid_t)[[windowDict valueForKey:(NSString*)kCGWindowOwnerPID] intValue]];
+        [targetApp activateWithOptions:NSApplicationActivateAllWindows];
+
+        // Attempted work around using private API CoreGraphicsServices, no dice (so far).
+/*        
+        CGSInitialize();
+        CGWindowID winID = (CGWindowID)[[windowDict valueForKey:(NSString*)kCGWindowNumber] unsignedIntValue ]; 
+        
+        int err = 0;
+        
+        CGSConnection defaultConn = _CGSDefaultConnection();
+        CGSConnection cid;
+        CGSNewConnection(&defaultConn, &cid);
+        
+        ProcessSerialNumber psn;
+        pid_t processid = (pid_t)[[windowDict valueForKey:(NSString*)kCGWindowOwnerPID] intValue];
+        GetProcessForPID(processid, &psn);
+        
+        CGSConnection windowConnectionIWant;
+        
+        err = CGSGetConnectionIDForPSN(0, &psn, &windowConnectionIWant);
+        if(err)
+            NSLog(@"Error finding connection for PSN: %i", err);
+        
+        err = CGSUncoverWindow(windowConnectionIWant, winID);        
+        if(err)
+            NSLog(@"Error finding connection for PSN: %i", err);
+*/
+        
         CGRect rect;
         CGRectMakeWithDictionaryRepresentation((CFDictionaryRef)rectDict, &rect);
         NSRect windowRect = NSRectFromCGRect(rect);
+        
+        windowRect = NSIntersectionRect([NSScreen mainScreen].frame, windowRect);
         
         windowRect.origin.y = [[NSScreen mainScreen] frame].size.height - windowRect.origin.y - windowRect.size.height;    
         
@@ -152,7 +193,7 @@
         [syServer setName:@"Desktop"];
     }
     
-    [captureWindow setFrame:NSInsetRect(captureRect, -5, -5) display:YES animate:YES];
+    [captureWindow setFrame:NSInsetRect(captureRect, -10, -10) display:YES animate:YES];
     
     // create a new GL Texture sized to fit the screen.
     CGLContextObj cgl_ctx = [fullscreenContext CGLContextObj];
@@ -207,6 +248,25 @@
 	}
     
     [pf release];
+    
+//    //  Be a lame ass and make a CIFilter attached to the window, using Private API's because this wont ever be on the app store..
+//    CGSConnection thisConnection;
+//    NSUInteger compositingFilter;
+//    
+//    NSInteger compositingType = 1 << 0; // Under the window
+//
+//    // Make a new connection to CoreGraphicsServices
+//    CGSNewConnection(_CGSDefaultConnection(), &thisConnection);
+//    
+//    // Create a CoreImage filter and set it up
+//    CGSNewCIFilterByName(thisConnection, (CFStringRef)@"CIColorInvert", &compositingFilter);
+//    
+//    NSDictionary *options = [NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:3.0] forKey:@"inputRadius"];
+//    CGSSetCIFilterValuesFromDictionary(thisConnection, compositingFilter, (CFDictionaryRef)options);
+//    
+//    /* Now apply the filter to the window */
+//    
+//    CGSAddWindowFilter(thisConnection, [captureWindow windowNumber], compositingFilter, compositingType);
 }
 #pragma clang diagnostic pop
 

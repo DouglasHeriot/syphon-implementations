@@ -19,9 +19,6 @@
 
 @interface SyphonCaptureView : NSView 
 {
-  	NSTimer* phaseTimer; // why not...
-	CGFloat phase;  
 }
-- (void) updatePhase;
 
 @end

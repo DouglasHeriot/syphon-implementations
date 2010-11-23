@@ -17,7 +17,6 @@
 	{
 		[self setBackgroundColor:[NSColor clearColor]];
 		
-		
 		SyphonCaptureView* contentView = [[SyphonCaptureView alloc] initWithFrame:contentRect];
 		[contentView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 		[contentView setFrameOrigin:NSMakePoint(0, 0)];
@@ -25,7 +24,7 @@
         
 		[contentView release];
 		
-		[self setLevel:kCGFloatingWindowLevel + 1];
+		[self setLevel:kCGOverlayWindowLevelKey + 1];
 	}
 	return self;
 }
@@ -45,67 +44,15 @@
 
 @implementation SyphonCaptureView
 
-
-- (id)initWithFrame:(NSRect)frameRect
-{
-	if(self = [super initWithFrame:frameRect])
-	{
-		phase = 0.0;
-		phaseTimer = [[NSTimer scheduledTimerWithTimeInterval:1.0/10.0 target:self selector:@selector(updatePhase) userInfo:nil repeats:YES] retain];
-		[[NSRunLoop currentRunLoop] addTimer:phaseTimer forMode:NSDefaultRunLoopMode];
-	}
-	else
-	{
-		[self release];
-		return nil;
-	}
-    
-	return self;
-}
-
-- (void) dealloc
-{
-	[phaseTimer invalidate];
-	
-	[super dealloc];
-}
-
-- (void) updatePhase
-{	
-	if([self.window isVisible])
-	{
-		phase += 1.25;
-		phase = (phase >= 20.0) ? 0.0 : phase; 
-		
-		[self setNeedsDisplay:YES];
-	}
-}
-
 - (void) drawRect:(NSRect) rect
 {
-	NSBezierPath* drawPath = [NSBezierPath bezierPathWithRoundedRect:rect xRadius:10 yRadius:10];
-	
+    NSBezierPath* drawPath = [NSBezierPath bezierPathWithRoundedRect:rect xRadius:5 yRadius:5];
     
-    [drawPath setLineCapStyle:NSSquareLineCapStyle];
-	[drawPath setLineJoinStyle:NSBevelLineJoinStyle];
-	
-    [drawPath setLineWidth:4];
-
-	[[NSColor colorWithCalibratedRed:0.0 green:0.0 blue:0.0 alpha:0.5] set];
-	[drawPath stroke];
+    [[NSColor colorWithCalibratedWhite:0.5 alpha:0.7] set];
+    [drawPath fill];
     
-    
-	[[NSColor colorWithCalibratedRed:1.0 green:0.0 blue:0.0 alpha:1.0] set];
-	[drawPath setLineCapStyle:NSSquareLineCapStyle];
-	[drawPath setLineJoinStyle:NSBevelLineJoinStyle];
-	
-	CGFloat	array[2];
-	array[0] = 10.0; //segment painted with stroke color
-	array[1] = 10.0; //segment not painted with a color
-	
-	[drawPath setLineDash: array count: 2 phase:phase];
-    
-	[drawPath stroke];
+    [[NSColor clearColor] set];    
+    NSRectFill(NSInsetRect(rect, 10, 10));
 }
 
 @end
