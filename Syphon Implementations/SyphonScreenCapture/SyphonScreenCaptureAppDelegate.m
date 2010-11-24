@@ -132,9 +132,7 @@
     if(win)
     {
         CGWindowID windowIDs[1] = { win };
-        
-        CFArrayRef windowIDsArray = CFArrayCreate(kCFAllocatorDefault, (const void**)windowIDs, 1, NULL);
-        
+        CFArrayRef windowIDsArray = CFArrayCreate(kCFAllocatorDefault, (const void**)windowIDs, 1, NULL);        
         NSArray* returned = (NSArray*) CGWindowListCreateDescriptionFromArray(windowIDsArray);
         
         NSDictionary* windowDict = [returned objectAtIndex:0];
@@ -196,14 +194,12 @@
     [captureWindow setFrame:NSInsetRect(captureRect, -10, -10) display:YES animate:YES];
     
     // create a new GL Texture sized to fit the screen.
-    CGLContextObj cgl_ctx = [fullscreenContext CGLContextObj];
-    glDeleteTextures(1, &captureTexture);
+    CGLContextObj cgl_ctx = [fullscreenContext CGLContextObj];  
     
-    glGenTextures(1, &captureTexture);
-    glEnable(GL_TEXTURE_RECTANGLE_ARB);
-    glBindTexture(GL_TEXTURE_RECTANGLE_EXT, captureTexture);
-    // We use RGBA and UNSIGNED_BYTE because we are going GPU -> GPU. 
-    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA8, captureRect.size.width, captureRect.size.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    // This ensures the next render frame that the Syphon Image is the proper size, and clean of artifacts.
+    [syServer bindToDrawFrameOfSize:captureRect.size];    
+    glClear(GL_COLOR_BUFFER_BIT);
+    [syServer unbindAndPublish];
 }
 
 // CGLSetFullscreen is depreciated, but has no replcement for use with screen capture...
@@ -300,16 +296,27 @@
     // get the fullscreen context
     CGLContextObj cgl_ctx;
     cgl_ctx = [fullscreenContext CGLContextObj];
-    glReadBuffer(GL_FRONT);
 
-    glBindTexture(GL_TEXTURE_RECTANGLE_EXT, captureTexture);
-    //glCopyTexImage2D(GL_TEXTURE_RECTANGLE_EXT, 0, GL_RGBA, captureRect.origin.x, captureRect.origin.y, captureRect.size.width, captureRect.size.height, 0);
+    // WARNING
+    // WARNING
+    // WARNING
+    // Ok, the following is kind of a crude hack to keep things fast, leveraging the new SyphonServer newFrameImage.
+    // Rather than keeping our own texture, and then doing a FBO render to texture during publish,
+    // We just get the servers image, grab its texture and copy pixels INTO it.
+    // Then we call bindToDrawFrameOfSize, unbind immediately, to make sure our server publishes. 
+    // Thats the really nasty part.
+    
+    glReadBuffer(GL_FRONT);
+    
+    // latest server frame/texture
+    SyphonImage* serverImage = [syServer newFrameImage];
+
+    glBindTexture(GL_TEXTURE_RECTANGLE_EXT, [serverImage textureName]);
     glCopyTexSubImage2D(GL_TEXTURE_RECTANGLE_EXT, 0, 0, 0,captureRect.origin.x, captureRect.origin.y, captureRect.size.width, captureRect.size.height);    
     
-    [syServer publishFrameTexture:captureTexture textureTarget:GL_TEXTURE_RECTANGLE_EXT imageRegion:NSMakeRect(0, 0, captureRect.size.width,captureRect.size.height) textureDimensions:captureRect.size flipped:NO];
-    
-    // This does not seem strictly necessary since we are not drawing to the fullscreen context.
-    //CGLFlushDrawable(cgl_ctx);
+    // Give Syphon a kick in the ass to publish the texture.
+    [syServer bindToDrawFrameOfSize:captureRect.size];    
+    [syServer unbindAndPublish];
     
     // handle preview rendering
     cgl_ctx = [previewContext CGLContextObj];
@@ -327,10 +334,11 @@
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
     
-    if (captureTexture != 0)
+    // draw with our above frame.
+    if (serverImage)
 	{
 		glEnable(GL_TEXTURE_RECTANGLE_EXT);
-		glBindTexture(GL_TEXTURE_RECTANGLE_EXT, captureTexture);
+		glBindTexture(GL_TEXTURE_RECTANGLE_EXT, [serverImage textureName]);
 		
 		NSSize textureSize = captureRect.size;
 		
@@ -370,6 +378,9 @@
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 		glDisableClientState(GL_VERTEX_ARRAY);
 	}
+    
+    // release our image
+    [serverImage release];
     
     CGLFlushDrawable(cgl_ctx);
 }

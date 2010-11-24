@@ -32,7 +32,7 @@
     CVDisplayLinkRef renderLink;
     NSTimer *stupidRenderTimer;
     
-    GLuint captureTexture;
+    //GLuint captureTexture;
     
     NSRect captureRect;
 }
