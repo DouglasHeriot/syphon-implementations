@@ -14,6 +14,7 @@
 		1BC3EACA1299E5AB00A4F2A4 /* Syphon.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1BC3EAB81299E4CF00A4F2A4 /* Syphon.framework */; };
 		1BC3EB7E1299EC9D00A4F2A4 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1BC3EB7D1299EC9D00A4F2A4 /* Quartz.framework */; };
 		1BC3EC88129A05F100A4F2A4 /* SyphonCaptureWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BC3EC87129A05F100A4F2A4 /* SyphonCaptureWindow.m */; };
+		1BE389E3129DFB4A008F47B9 /* IconSmall.png in Resources */ = {isa = PBXBuildFile; fileRef = 1BE389E2129DFB4A008F47B9 /* IconSmall.png */; };
 		1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58140DA1D0A300B32029 /* MainMenu.xib */; };
 		256AC3DA0F4B6AC300CF3369 /* SyphonScreenCaptureAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 256AC3D90F4B6AC300CF3369 /* SyphonScreenCaptureAppDelegate.m */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
@@ -63,6 +64,7 @@
 		1BC3EC87129A05F100A4F2A4 /* SyphonCaptureWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SyphonCaptureWindow.m; sourceTree = "<group>"; };
 		1BE38526129C1253008F47B9 /* CGSPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGSPrivate.h; sourceTree = "<group>"; };
 		1BE3854E129C23C9008F47B9 /* CoreGraphicsServices.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreGraphicsServices.h; sourceTree = "<group>"; };
+		1BE389E2129DFB4A008F47B9 /* IconSmall.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = IconSmall.png; sourceTree = "<group>"; };
 		1DDD58150DA1D0A300B32029 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		256AC3D80F4B6AC300CF3369 /* SyphonScreenCaptureAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SyphonScreenCaptureAppDelegate.h; sourceTree = "<group>"; };
 		256AC3D90F4B6AC300CF3369 /* SyphonScreenCaptureAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SyphonScreenCaptureAppDelegate.m; sourceTree = "<group>"; };
@@ -162,6 +164,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				1BE389E2129DFB4A008F47B9 /* IconSmall.png */,
 				1B3CF7FA129B79980070B7E2 /* Icon.icns */,
 				1B3CF7CA129B561B0070B7E2 /* Credits.rtf */,
 				8D1107310486CEB800E47090 /* SyphonScreenCapture-Info.plist */,
@@ -245,6 +248,7 @@
 				1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */,
 				1B3CF7CC129B561B0070B7E2 /* Credits.rtf in Resources */,
 				1B3CF7FB129B79980070B7E2 /* Icon.icns in Resources */,
+				1BE389E3129DFB4A008F47B9 /* IconSmall.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

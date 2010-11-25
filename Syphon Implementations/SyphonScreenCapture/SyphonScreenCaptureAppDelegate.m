@@ -118,7 +118,7 @@
     
     NSMenuItem* newItem = [[NSMenuItem alloc] initWithTitle:@"Desktop" action:@selector(selectWindow:) keyEquivalent:@""];
     [newItem setRepresentedObject:[NSNumber numberWithUnsignedInt:0]];
-    [newItem setImage: [NSImage imageNamed:@"NSApplicationIcon"]];
+    [newItem setImage: [NSImage imageNamed:@"IconSmall"]];
     
     [[selectSourceWindowPopUpButton menu] addItem:newItem];
     [newItem release];
@@ -144,6 +144,9 @@
         NSRunningApplication* targetApp = [NSRunningApplication runningApplicationWithProcessIdentifier:(pid_t)[[windowDict valueForKey:(NSString*)kCGWindowOwnerPID] intValue]];
         [targetApp activateWithOptions:NSApplicationActivateAllWindows];
 
+        // reactivate us...
+        [[NSRunningApplication currentApplication] activateWithOptions:NSApplicationActivateAllWindows];
+        
         // Attempted work around using private API CoreGraphicsServices, no dice (so far).
 /*        
         CGSInitialize();
