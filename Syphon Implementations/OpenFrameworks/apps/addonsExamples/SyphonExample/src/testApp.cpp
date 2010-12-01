@@ -17,10 +17,10 @@ void testApp::setup(){
 	mainOutputSyphonServer.setName("Screen Output");
 	individualTextureSyphonServer.setName("Texture Output");
 
-//	mClient.setup();
+	mClient.setup();
     
-//    mClient.setApplicationName("Simple Server");
-//    mClient.setServerName("");
+    mClient.setApplicationName("Simple Server");
+    mClient.setServerName("");
 	
     tex.allocate(width, height, GL_RGBA);    
     
@@ -120,7 +120,7 @@ void testApp::draw(){
 
     ofEnableAlphaBlending();
     
-//    mClient.draw(50, 50);    
+    mClient.draw(50, 50);    
     
 	mainOutputSyphonServer.publishScreen();
     
