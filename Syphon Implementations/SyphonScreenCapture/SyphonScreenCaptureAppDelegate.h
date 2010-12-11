@@ -19,9 +19,13 @@
     SyphonServer* syServer;
 
     SyphonCaptureWindow* captureWindow;
-    NSWindow* window;
+    NSPanel* window;
     NSView* previewView;
 
+    NSStatusItem * statusItem;
+    NSMenu* statusItemMainMenu;
+    NSMenu* captureSourcesMenu;
+    
     NSPopUpButton* selectSourceWindowPopUpButton;
     NSArray* windowsArray;
         
@@ -32,23 +36,27 @@
     CVDisplayLinkRef renderLink;
     NSTimer *stupidRenderTimer;
     
-    //GLuint captureTexture;
-    
     NSRect captureRect;
+
+    
+    //GLuint captureTexture;
 }
 
-@property (assign) IBOutlet NSWindow *window;
+@property (assign) IBOutlet NSPanel *window;
 @property (assign) IBOutlet NSView* previewView;
-@property (assign) IBOutlet NSPopUpButton* selectSourceWindowPopUpButton;
+@property (assign) IBOutlet NSMenu* captureSourcesMenu;
+@property (assign) IBOutlet NSMenu* statusItemMainMenu;
 
 @property (readwrite, retain) SyphonServer* syServer;
 @property (readwrite, retain) NSArray* windowsArray;
 
+- (void) activateStatusMenu;
 - (void) initWindowMenu;
 - (void) createFullscreenContextOnDisplay:(CGDirectDisplayID) displayID;
 - (void) createPreviewContext;
 - (void) render;
 
 - (IBAction) shouldDisplayPreviewWindow:(id)sender;
+- (IBAction) shouldDisplayCaptureHint:(id)sender;
 
 @end

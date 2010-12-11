@@ -19,29 +19,50 @@
 
 @synthesize window;
 @synthesize previewView;
-@synthesize selectSourceWindowPopUpButton;
+@synthesize captureSourcesMenu;
+@synthesize statusItemMainMenu;
 @synthesize syServer;
 @synthesize windowsArray;
 
-- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication
+
+
+- (void) activateStatusMenu
 {
-	return YES;
+	NSStatusBar *bar = [NSStatusBar systemStatusBar];
+	
+	statusItem = [bar statusItemWithLength:NSVariableStatusItemLength];
+	[statusItem retain];
+	
+    NSImage* appImage = [[NSImage imageNamed:@"NSApplicationIcon"] copy];
+    [appImage setSize:NSMakeSize(16, 16)];
+    
+	[statusItem setImage:appImage];
+	//[menuItem setTitle: NSLocalizedString(@"Borderless",@"")];
+	[statusItem setHighlightMode:YES];
+	[statusItem setMenu:statusItemMainMenu];
+    
+    [appImage release];
 }
+
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
+    
+    [self activateStatusMenu];
+    
     captureWindow = [[SyphonCaptureWindow alloc] initWithContentRect:NSMakeRect(22, 0, 640, 480) styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:NO];
+    [captureWindow setReleasedWhenClosed:NO];
     [captureWindow makeKeyAndOrderFront:nil];
     
     // We need to handle some notifications from NSWorkspace
     [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(initWindowMenu) name:NSWorkspaceDidHideApplicationNotification object:nil]; 
     [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(initWindowMenu) name:NSWorkspaceDidUnhideApplicationNotification object:nil]; 
-    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(initWindowMenu) name:NSWorkspaceDidLaunchApplicationNotification object:nil]; 
+    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self sel//ector:@selector(initWindowMenu) name:NSWorkspaceDidLaunchApplicationNotification object:nil]; 
     [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(initWindowMenu) name:NSWorkspaceDidTerminateApplicationNotification object:nil]; 
     [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(initWindowMenu) name:NSWorkspaceDidActivateApplicationNotification object:nil]; 
     
     [self initWindowMenu];
-    
+        
     // Make our GL contexts, and views
     CGDirectDisplayID displayID = [[[[NSScreen mainScreen] deviceDescription] valueForKey:@"NSScreenNumber"] unsignedIntValue];
     [self createFullscreenContextOnDisplay:displayID];
@@ -53,6 +74,9 @@
     stupidRenderTimer = [NSTimer timerWithTimeInterval:1.0/60.0 target:self selector:@selector(render) userInfo:nil repeats:YES];
     [stupidRenderTimer retain];
     [[NSRunLoop currentRunLoop] addTimer:stupidRenderTimer forMode:NSRunLoopCommonModes];
+    
+    // off the bat, choose the desktop.
+    [captureSourcesMenu performActionForItemAtIndex:0];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification
@@ -66,8 +90,21 @@
 
 - (void) initWindowMenu
 {
-    [selectSourceWindowPopUpButton removeAllItems];
-        
+    [captureSourcesMenu removeAllItems];
+    
+    
+    NSMenuItem* newItem = [[NSMenuItem alloc] initWithTitle:@"Desktop" action:@selector(selectWindow:) keyEquivalent:@""];
+    [newItem setRepresentedObject:[NSNumber numberWithUnsignedInt:0]];
+    
+    NSImage* icon = [NSImage imageNamed:@"NSComputer"];
+    [icon setSize:NSMakeSize(16, 16)];
+    
+    [newItem setImage:icon];
+    
+    [captureSourcesMenu addItem:newItem];
+    [newItem release];
+    
+    
     self.windowsArray = (NSArray*) CGWindowListCopyWindowInfo( kCGWindowListOptionOnScreenOnly + kCGWindowListExcludeDesktopElements, kCGNullWindowID);
             
     for(NSDictionary* winDict in windowsArray)
@@ -75,10 +112,12 @@
         NSMenu* menuToAddTo = nil;
         
         NSString* appName = [winDict valueForKey:(NSString*)kCGWindowOwnerName];
+        NSString* windowtitle = [winDict valueForKey:(NSString*)kCGWindowName];
+
         
-        if(![appName isEqualTo:@"SystemUIServer"] && ![appName isEqualTo:@"Window Server"] && ![appName isEqualTo:@"Main Menu"] && ![appName isEqualTo:@"Dock"])
+        if((![windowtitle isEqualToString:@""])  && ![appName isEqualTo:@"SystemUIServer"] && ![appName isEqualTo:@"Window Server"] && ![appName isEqualTo:@"Main Menu"] && ![appName isEqualTo:@"Dock"])
         {
-            for(NSMenuItem* item in [selectSourceWindowPopUpButton itemArray])
+            for(NSMenuItem* item in [captureSourcesMenu itemArray])
             {
                 // if there is an existing sub-menu for the application, use it, otherwise, make one.
                 if([[item title] isEqualTo:appName])
@@ -97,16 +136,18 @@
             
                 NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier:(pid_t)[[winDict valueForKey:(NSString*)kCGWindowOwnerPID] intValue]];
                 
-                [newItem setImage:[app icon]];
+                NSImage* icon = [app icon];
+                [icon setSize:NSMakeSize(16, 16)];
                 
-                [[selectSourceWindowPopUpButton menu] addItem:newItem];
-                [[selectSourceWindowPopUpButton menu] setSubmenu:menuToAddTo forItem:newItem];
+                [newItem setImage:icon];
+                
+                [captureSourcesMenu addItem:newItem];
+                [captureSourcesMenu setSubmenu:menuToAddTo forItem:newItem];
 
                 [newItem autorelease];
                 [menuToAddTo autorelease];
             }
                         
-            NSString* windowtitle = ([winDict valueForKey:(NSString*)kCGWindowName]) ? [winDict valueForKey:(NSString*)kCGWindowName] : @"";
             
             NSMenuItem* newObjectMenuItem = [[NSMenuItem alloc] initWithTitle:windowtitle action:@selector(selectWindow:) keyEquivalent:@""];
             [newObjectMenuItem setRepresentedObject:[winDict valueForKey:(NSString*)kCGWindowNumber]];
@@ -115,13 +156,7 @@
             [newObjectMenuItem release];
         }
     }
-    
-    NSMenuItem* newItem = [[NSMenuItem alloc] initWithTitle:@"Desktop" action:@selector(selectWindow:) keyEquivalent:@""];
-    [newItem setRepresentedObject:[NSNumber numberWithUnsignedInt:0]];
-    [newItem setImage: [NSImage imageNamed:@"IconSmall"]];
-    
-    [[selectSourceWindowPopUpButton menu] addItem:newItem];
-    [newItem release];
+
 }
 
 - (void) selectWindow:(id)sender
@@ -322,81 +357,103 @@
     [syServer unbindAndPublish];
     
     // handle preview rendering
-    cgl_ctx = [previewContext CGLContextObj];
-    [previewContext update];
-    glViewport(0, 0, previewView.frame.size.width, previewView.frame.size.height);
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0, previewView.frame.size.width, 0, previewView.frame.size.height, -1, 1);
-
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glTranslated(previewView.frame.size.width * 0.5, previewView.frame.size.height * 0.5, 0.0);
-
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    if([window isVisible])
+    {
     
-    // draw with our above frame.
-    if (serverImage)
-	{
-		glEnable(GL_TEXTURE_RECTANGLE_EXT);
-		glBindTexture(GL_TEXTURE_RECTANGLE_EXT, [serverImage textureName]);
-		
-		NSSize textureSize = captureRect.size;
-		
-		glColor4f(1.0, 1.0, 1.0, 1.0);
-		
-		NSSize scaled;
-		float wr = textureSize.width / previewView.frame.size.width;
-		float hr = textureSize.height / previewView.frame.size.height;
-		float ratio;
-		ratio = (hr < wr ? wr : hr);
-		scaled = NSMakeSize((textureSize.width / ratio), (textureSize.height / ratio));
-		
-		GLfloat tex_coords[] = 
-		{
-			0.0,	0.0,
-			textureSize.width,	0.0,
-			textureSize.width,	textureSize.height,
-			0.0,	textureSize.height
-		};
-		
-		float halfw = scaled.width * 0.5;
-		float halfh = scaled.height * 0.5;
-		
-		GLfloat verts[] = 
-		{
-			-halfw, -halfh,
-			halfw, -halfh,
-			halfw, halfh,
-			-halfw, halfh
-		};
+        cgl_ctx = [previewContext CGLContextObj];
+        [previewContext update];
+        glViewport(0, 0, previewView.frame.size.width, previewView.frame.size.height);
+
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(0, previewView.frame.size.width, 0, previewView.frame.size.height, -1, 1);
+
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glTranslated(previewView.frame.size.width * 0.5, previewView.frame.size.height * 0.5, 0.0);
+
+        glClearColor(0.0, 0.0, 0.0, 0.0);
+        glClear(GL_COLOR_BUFFER_BIT);
         
-		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		glTexCoordPointer(2, GL_FLOAT, 0, tex_coords );
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glVertexPointer(2, GL_FLOAT, 0, verts );
-		glDrawArrays( GL_TRIANGLE_FAN, 0, 4 );
-		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-		glDisableClientState(GL_VERTEX_ARRAY);
-	}
+        // draw with our above frame.
+        if (serverImage)
+        {
+            glEnable(GL_TEXTURE_RECTANGLE_EXT);
+            glBindTexture(GL_TEXTURE_RECTANGLE_EXT, [serverImage textureName]);
+            
+            NSSize textureSize = captureRect.size;
+            
+            glColor4f(1.0, 1.0, 1.0, 1.0);
+            
+            NSSize scaled;
+            float wr = textureSize.width / previewView.frame.size.width;
+            float hr = textureSize.height / previewView.frame.size.height;
+            float ratio;
+            ratio = (hr < wr ? wr : hr);
+            scaled = NSMakeSize((textureSize.width / ratio), (textureSize.height / ratio));
+            
+            GLfloat tex_coords[] = 
+            {
+                0.0,	0.0,
+                textureSize.width,	0.0,
+                textureSize.width,	textureSize.height,
+                0.0,	textureSize.height
+            };
+            
+            float halfw = scaled.width * 0.5;
+            float halfh = scaled.height * 0.5;
+            
+            GLfloat verts[] = 
+            {
+                -halfw, -halfh,
+                halfw, -halfh,
+                halfw, halfh,
+                -halfw, halfh
+            };
+            
+            glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+            glTexCoordPointer(2, GL_FLOAT, 0, tex_coords );
+            glEnableClientState(GL_VERTEX_ARRAY);
+            glVertexPointer(2, GL_FLOAT, 0, verts );
+            glDrawArrays( GL_TRIANGLE_FAN, 0, 4 );
+            glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+            glDisableClientState(GL_VERTEX_ARRAY);
+        }
+        
+        CGLFlushDrawable(cgl_ctx);
+    }
     
     // release our image
     [serverImage release];
-    
-    CGLFlushDrawable(cgl_ctx);
 }
 
 - (IBAction) shouldDisplayPreviewWindow:(id)sender
 {
-    if([(NSButton*)sender state] == NSOnState)
+    if([(NSMenuItem*)sender state] == NSOffState)
     {
-        [captureWindow orderFront:sender];
+        [window orderFront:nil];
+        [(NSMenuItem*)sender setState:NSOnState];
     }
     else
     {
-        [captureWindow orderOut:sender];
+        [window orderOut:nil];
+        [(NSMenuItem*)sender setState:NSOffState];
+    }    
+}
+
+
+- (IBAction) shouldDisplayCaptureHint:(id)sender
+{
+    if([(NSMenuItem*)sender state] == NSOffState)
+    {
+        [captureWindow orderFront:nil];
+        [(NSMenuItem*)sender setState:NSOnState];
+    }
+    else
+    {
+        [captureWindow orderOut:nil];
+        [(NSMenuItem*)sender setState:NSOffState];
     }    
 }
 
