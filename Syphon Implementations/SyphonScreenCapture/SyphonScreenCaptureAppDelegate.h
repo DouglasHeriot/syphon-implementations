@@ -39,7 +39,6 @@
     NSRect captureRect;
 
     CGWindowID selectedCaptureSourceWindow;
-    //GLuint captureTexture;
 }
 
 @property (assign) IBOutlet NSPanel *window;
