@@ -38,7 +38,7 @@
     
     NSRect captureRect;
 
-    
+    CGWindowID selectedCaptureSourceWindow;
     //GLuint captureTexture;
 }
 

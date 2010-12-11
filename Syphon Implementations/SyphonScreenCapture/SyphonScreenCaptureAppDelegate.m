@@ -24,8 +24,6 @@
 @synthesize syServer;
 @synthesize windowsArray;
 
-
-
 - (void) activateStatusMenu
 {
 	NSStatusBar *bar = [NSStatusBar systemStatusBar];
@@ -44,9 +42,33 @@
     [appImage release];
 }
 
-
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
+    // check accessibility, make a nice popup asking user to enable.
+    
+    if(!AXAPIEnabled())
+    {
+        NSAlert* alert = [[NSAlert alloc] init];
+                         
+        [alert setMessageText:@"Access for Assistive Devices not enabled."];
+        [alert setInformativeText:@"Enabling Universal Access's 'Access for Assistive Devices' preference allows Screen Capture to bring hidden windows to the forground so they can be captured without hassle."];
+        [alert addButtonWithTitle:@"Open Universal Access"];
+        [alert addButtonWithTitle:@"Cancel"];
+        [alert setAlertStyle:NSInformationalAlertStyle];
+        int result = [alert runModal];
+        
+        switch (result)
+        {
+            default:
+                break;
+            case NSAlertFirstButtonReturn:
+                {
+                    NSLog(@"prefs");
+                    [[NSWorkspace sharedWorkspace] openFile:@"/System/Library/PreferencePanes/UniversalAccessPref.prefpane"];   
+                }
+                break;
+        }
+    }
     
     [self activateStatusMenu];
     
@@ -57,7 +79,7 @@
     // We need to handle some notifications from NSWorkspace
     [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(initWindowMenu) name:NSWorkspaceDidHideApplicationNotification object:nil]; 
     [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(initWindowMenu) name:NSWorkspaceDidUnhideApplicationNotification object:nil]; 
-    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self sel//ector:@selector(initWindowMenu) name:NSWorkspaceDidLaunchApplicationNotification object:nil]; 
+    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(initWindowMenu) name:NSWorkspaceDidLaunchApplicationNotification object:nil]; 
     [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(initWindowMenu) name:NSWorkspaceDidTerminateApplicationNotification object:nil]; 
     [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(initWindowMenu) name:NSWorkspaceDidActivateApplicationNotification object:nil]; 
     
@@ -92,18 +114,15 @@
 {
     [captureSourcesMenu removeAllItems];
     
-    
     NSMenuItem* newItem = [[NSMenuItem alloc] initWithTitle:@"Desktop" action:@selector(selectWindow:) keyEquivalent:@""];
     [newItem setRepresentedObject:[NSNumber numberWithUnsignedInt:0]];
     
     NSImage* icon = [NSImage imageNamed:@"NSComputer"];
-    [icon setSize:NSMakeSize(16, 16)];
-    
+    [icon setSize:NSMakeSize(16, 16)];    
     [newItem setImage:icon];
     
     [captureSourcesMenu addItem:newItem];
     [newItem release];
-    
     
     self.windowsArray = (NSArray*) CGWindowListCopyWindowInfo( kCGWindowListOptionOnScreenOnly + kCGWindowListExcludeDesktopElements, kCGNullWindowID);
             
@@ -113,7 +132,6 @@
         
         NSString* appName = [winDict valueForKey:(NSString*)kCGWindowOwnerName];
         NSString* windowtitle = [winDict valueForKey:(NSString*)kCGWindowName];
-
         
         if((![windowtitle isEqualToString:@""])  && ![appName isEqualTo:@"SystemUIServer"] && ![appName isEqualTo:@"Window Server"] && ![appName isEqualTo:@"Main Menu"] && ![appName isEqualTo:@"Dock"])
         {
@@ -147,7 +165,6 @@
                 [newItem autorelease];
                 [menuToAddTo autorelease];
             }
-                        
             
             NSMenuItem* newObjectMenuItem = [[NSMenuItem alloc] initWithTitle:windowtitle action:@selector(selectWindow:) keyEquivalent:@""];
             [newObjectMenuItem setRepresentedObject:[winDict valueForKey:(NSString*)kCGWindowNumber]];
@@ -156,32 +173,44 @@
             [newObjectMenuItem release];
         }
     }
-
 }
 
 - (void) selectWindow:(id)sender
 {    
     // We want to get fresh data about the window, so we re-query cause thats how we roll.
-    CGWindowID win = (CGWindowID)[[sender representedObject] unsignedIntValue];
+    selectedCaptureSourceWindow = (CGWindowID)[[sender representedObject] unsignedIntValue];
     
-    if(win)
+    if(selectedCaptureSourceWindow)
     {
-        CGWindowID windowIDs[1] = { win };
+        CGWindowID windowIDs[1] = { selectedCaptureSourceWindow };
         CFArrayRef windowIDsArray = CFArrayCreate(kCFAllocatorDefault, (const void**)windowIDs, 1, NULL);        
         NSArray* returned = (NSArray*) CGWindowListCreateDescriptionFromArray(windowIDsArray);
         
         NSDictionary* windowDict = [returned objectAtIndex:0];
         NSDictionary* rectDict = [windowDict valueForKey:(NSString*)kCGWindowBounds]; 
-        
+
+        NSString* appName = [windowDict valueForKey:(NSString*)kCGWindowOwnerName];
+        NSString* windowtitle = [windowDict valueForKey:(NSString*)kCGWindowName];
+
         // bring the running applications to the front.
         // The following does not *quite* work. It brings the app, not the window to the front. The window may still be occluded.
+ 
+        NSDictionary* error;
         
-        NSRunningApplication* targetApp = [NSRunningApplication runningApplicationWithProcessIdentifier:(pid_t)[[windowDict valueForKey:(NSString*)kCGWindowOwnerPID] intValue]];
-        [targetApp activateWithOptions:NSApplicationActivateAllWindows];
-
-        // reactivate us...
-        [[NSRunningApplication currentApplication] activateWithOptions:NSApplicationActivateAllWindows];
-        
+        NSString *script= [NSString stringWithFormat:@"tell application \"System Events\" to tell process \"%@\" to perform action \"AXRaise\" of window \"%@\"\ntell application \"%@\" to activate", appName, windowtitle, appName];
+        NSAppleScript *as = [[NSAppleScript alloc] initWithSource:script];
+        [as compileAndReturnError:&error];
+       // NSLog(@", %@", error);
+        [as executeAndReturnError:&error];  // Bring it on!
+       // NSLog(@", %@", error);
+        [as release];
+                
+ //       NSRunningApplication* targetApp = [NSRunningApplication runningApplicationWithProcessIdentifier:(pid_t)[[windowDict valueForKey:(NSString*)kCGWindowOwnerPID] intValue]];
+//        [targetApp activateWithOptions:NSApplicationActivateAllWindows];
+//
+//        // reactivate us...
+//        [[NSRunningApplication currentApplication] activateWithOptions:NSApplicationActivateAllWindows];
+//        
         // Attempted work around using private API CoreGraphicsServices, no dice (so far).
 /*        
         CGSInitialize();
@@ -304,7 +333,6 @@
 }
 #pragma clang diagnostic pop
 
-
 - (void) createPreviewContext
 {      
     const NSOpenGLPixelFormatAttribute attr[] = {NSOpenGLPFANoRecovery, NSOpenGLPFAAccelerated, NSOpenGLPFADoubleBuffer, 0};
@@ -335,6 +363,37 @@
     CGLContextObj cgl_ctx;
     cgl_ctx = [fullscreenContext CGLContextObj];
 
+    // ensure that our window location is correct. otherwise rebuild.
+    if(selectedCaptureSourceWindow)
+    {
+        CGWindowID windowIDs[1] = { selectedCaptureSourceWindow };
+        CFArrayRef windowIDsArray = CFArrayCreate(kCFAllocatorDefault, (const void**)windowIDs, 1, NULL);        
+        NSArray* returned = (NSArray*) CGWindowListCreateDescriptionFromArray(windowIDsArray);
+                
+        NSDictionary* windowDict = [returned objectAtIndex:0];
+        NSDictionary* rectDict = [windowDict valueForKey:(NSString*)kCGWindowBounds]; 
+        
+        CGRect rect;
+        CGRectMakeWithDictionaryRepresentation((CFDictionaryRef)rectDict, &rect);
+        NSRect windowRect = NSRectFromCGRect(rect);
+        
+        windowRect = NSIntersectionRect([NSScreen mainScreen].frame, windowRect);
+        
+        windowRect.origin.y = [[NSScreen mainScreen] frame].size.height - windowRect.origin.y - windowRect.size.height;    
+    
+        // are is the rect identical
+        if( !CGSizeEqualToSize(windowRect.size, captureRect.size))
+        {
+            [syServer bindToDrawFrameOfSize:captureRect.size];    
+            [syServer unbindAndPublish];            
+        }
+        
+        // update captureRect incase our origin changed.
+        captureRect = windowRect;
+        
+        [captureWindow setFrame:NSInsetRect(captureRect, -10, -10) display:YES animate:NO];
+    }        
+        
     // WARNING
     // WARNING
     // WARNING
