@@ -382,7 +382,7 @@
         windowRect.origin.y = [[NSScreen mainScreen] frame].size.height - windowRect.origin.y - windowRect.size.height;    
     
         // are is the rect identical
-        if( !CGSizeEqualToSize(windowRect.size, captureRect.size))
+        if( !NSEqualSizes(windowRect.size, captureRect.size))
         {
             [syServer bindToDrawFrameOfSize:captureRect.size];    
             [syServer unbindAndPublish];            
