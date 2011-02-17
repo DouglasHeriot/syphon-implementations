@@ -372,10 +372,11 @@
         CGWindowID windowIDs[1] = { selectedCaptureSourceWindow };
         CFArrayRef windowIDsArray = CFArrayCreate(kCFAllocatorDefault, (const void**)windowIDs, 1, NULL);        
         NSArray* returned = (NSArray*) CGWindowListCreateDescriptionFromArray(windowIDsArray);
+        [returned autorelease];
+
         CFRelease(windowIDsArray);
         
         NSDictionary* windowDict = [returned objectAtIndex:0];
-        [returned release];
         
         NSDictionary* rectDict = [windowDict valueForKey:(NSString*)kCGWindowBounds]; 
         
