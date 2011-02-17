@@ -56,6 +56,7 @@
         [alert addButtonWithTitle:@"Cancel"];
         [alert setAlertStyle:NSInformationalAlertStyle];
         int result = [alert runModal];
+        [alert release];
         
         switch (result)
         {
@@ -124,16 +125,18 @@
     [captureSourcesMenu addItem:newItem];
     [newItem release];
     
-    self.windowsArray = (NSArray*) CGWindowListCopyWindowInfo( kCGWindowListOptionOnScreenOnly + kCGWindowListExcludeDesktopElements, kCGNullWindowID);
+    NSArray *windows = (NSArray*) CGWindowListCopyWindowInfo( kCGWindowListOptionOnScreenOnly + kCGWindowListExcludeDesktopElements, kCGNullWindowID);
+    self.windowsArray = windows;
+    [windows release];
             
-    for(NSDictionary* winDict in windowsArray)
+    for(NSDictionary* winDict in self.windowsArray)
     {
         NSMenu* menuToAddTo = nil;
         
         NSString* appName = [winDict valueForKey:(NSString*)kCGWindowOwnerName];
         NSString* windowtitle = [winDict valueForKey:(NSString*)kCGWindowName];
         
-        if((![windowtitle isEqualToString:@""])  && ![appName isEqualTo:@"SystemUIServer"] && ![appName isEqualTo:@"Window Server"] && ![appName isEqualTo:@"Main Menu"] && ![appName isEqualTo:@"Dock"])
+        if(appName && (windowtitle && ![windowtitle isEqualToString:@""])  && ![appName isEqualTo:@"SystemUIServer"] && ![appName isEqualTo:@"Window Server"] && ![appName isEqualTo:@"Main Menu"] && ![appName isEqualTo:@"Dock"])
         {
             for(NSMenuItem* item in [captureSourcesMenu itemArray])
             {
@@ -369,8 +372,11 @@
         CGWindowID windowIDs[1] = { selectedCaptureSourceWindow };
         CFArrayRef windowIDsArray = CFArrayCreate(kCFAllocatorDefault, (const void**)windowIDs, 1, NULL);        
         NSArray* returned = (NSArray*) CGWindowListCreateDescriptionFromArray(windowIDsArray);
-                
+        CFRelease(windowIDsArray);
+        
         NSDictionary* windowDict = [returned objectAtIndex:0];
+        [returned release];
+        
         NSDictionary* rectDict = [windowDict valueForKey:(NSString*)kCGWindowBounds]; 
         
         CGRect rect;
