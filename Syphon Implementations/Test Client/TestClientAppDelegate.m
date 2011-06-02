@@ -136,32 +136,35 @@
 	fpsStart = [NSDate timeIntervalSinceReferenceDate];
 	fpsCount = 0;
 	syClient = [[SyphonClient alloc] initWithServerDescription:[sender representedObject] options:nil newFrameHandler:^(SyphonClient *client) {
-		// Track our framerate
-		fpsCount++;
-		float elapsed = [NSDate timeIntervalSinceReferenceDate] - fpsStart;
-		if (elapsed > 1.0)
-		{
-			self.FPS = fpsCount / elapsed;
-			fpsStart = [NSDate timeIntervalSinceReferenceDate];
-			fpsCount = 0;
-		}
-		if (_fpsWatch == nil)
-		{
-			_fpsWatch = [[SyIStopwatch alloc] init];
-			[_fpsWatch start];
-		}
-		_frameCount++;
-#if SYPHON_DEBUG_NO_DRAWING
-		[_bindWatch start];
-		[client bindFrameTexture:NULL];
-		[_bindWatch stop];
-		[_unbindWatch start];
-		[client unbindFrameTexture:NULL];
-		[_unbindWatch stop];
-#else
-		// We just mark our view as needing display, it will get the frame when it's ready to draw
-		[glView setNeedsDisplay:YES];
-#endif
+        // This handler could be called from any thread, but we update our UI so pass this over to the main thread
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            // Track our framerate
+            fpsCount++;
+            float elapsed = [NSDate timeIntervalSinceReferenceDate] - fpsStart;
+            if (elapsed > 1.0)
+            {
+                self.FPS = fpsCount / elapsed;
+                fpsStart = [NSDate timeIntervalSinceReferenceDate];
+                fpsCount = 0;
+            }
+            if (_fpsWatch == nil)
+            {
+                _fpsWatch = [[SyIStopwatch alloc] init];
+                [_fpsWatch start];
+            }
+            _frameCount++;
+    #if SYPHON_DEBUG_NO_DRAWING
+            [_bindWatch start];
+            [client bindFrameTexture:NULL];
+            [_bindWatch stop];
+            [_unbindWatch start];
+            [client unbindFrameTexture:NULL];
+            [_unbindWatch stop];
+    #else
+            // We just mark our view as needing display, it will get the frame when it's ready to draw
+            [glView setNeedsDisplay:YES];
+    #endif
+        }];
 	}];
 	
 	[glView setSyClient:syClient];
