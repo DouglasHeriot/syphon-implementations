@@ -36,7 +36,8 @@
 
 - (id)init
 {
-	if (self = [super init])
+    self = [super init];
+	if (self)
 	{
 		_lock = OS_SPINLOCK_INIT;
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleServerAnnounce:) name:SyphonServerAnnounceNotification object:nil];
