@@ -160,7 +160,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# shell script goes here\nrsync -aC \"$SRCROOT/addons\" \"$BUILT_PRODUCTS_DIR\"\nrsync -aC \"$SRCROOT/apps\" \"$BUILT_PRODUCTS_DIR\"\nrsync -aC \"$SRCROOT/Read Me.rtf\" \"$BUILT_PRODUCTS_DIR\"";
+			shellScript = "# shell script goes here\nrsync -aC \"$SRCROOT/Components/addons\" \"$BUILT_PRODUCTS_DIR\"\nrsync -aC \"$SRCROOT/Components/apps\" \"$BUILT_PRODUCTS_DIR\"\nrsync -aC \"$SRCROOT/Components/Read Me.rtf\" \"$BUILT_PRODUCTS_DIR\"";
 		};
 /* End PBXShellScriptBuildPhase section */
 
