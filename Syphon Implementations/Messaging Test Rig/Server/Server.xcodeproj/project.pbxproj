@@ -18,6 +18,8 @@
 		BDB8DAAA1211F70A0028D250 /* SyphonCFMessageSender.m in Sources */ = {isa = PBXBuildFile; fileRef = BDB8DAA61211F70A0028D250 /* SyphonCFMessageSender.m */; };
 		BDB8DAAB1211F70A0028D250 /* SyphonMachMessageSender.m in Sources */ = {isa = PBXBuildFile; fileRef = BDB8DAA81211F70A0028D250 /* SyphonMachMessageSender.m */; };
 		BDB8DB65121206AE0028D250 /* SyphonMessaging.m in Sources */ = {isa = PBXBuildFile; fileRef = BDB8DB64121206AE0028D250 /* SyphonMessaging.m */; };
+		E2A73267139EBF240087B84E /* SyphonCFMessageReceiver.m in Sources */ = {isa = PBXBuildFile; fileRef = E2A73266139EBF240087B84E /* SyphonCFMessageReceiver.m */; };
+		E2A73275139EC6800087B84E /* SyphonMessageReceiver.m in Sources */ = {isa = PBXBuildFile; fileRef = E2A73274139EC6800087B84E /* SyphonMessageReceiver.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +48,11 @@
 		BDB8DAA81211F70A0028D250 /* SyphonMachMessageSender.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SyphonMachMessageSender.m; path = "../../../Syphon Framework/SyphonMachMessageSender.m"; sourceTree = SOURCE_ROOT; };
 		BDB8DB63121206AE0028D250 /* SyphonMessaging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SyphonMessaging.h; path = "../../../Syphon Framework/SyphonMessaging.h"; sourceTree = SOURCE_ROOT; };
 		BDB8DB64121206AE0028D250 /* SyphonMessaging.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SyphonMessaging.m; path = "../../../Syphon Framework/SyphonMessaging.m"; sourceTree = SOURCE_ROOT; };
+		E2A73265139EBF240087B84E /* SyphonCFMessageReceiver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SyphonCFMessageReceiver.h; path = "../../../Syphon Framework/SyphonCFMessageReceiver.h"; sourceTree = "<group>"; };
+		E2A73266139EBF240087B84E /* SyphonCFMessageReceiver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SyphonCFMessageReceiver.m; path = "../../../Syphon Framework/SyphonCFMessageReceiver.m"; sourceTree = "<group>"; };
+		E2A73269139EC3E80087B84E /* TestMessages.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestMessages.h; path = ../TestMessages.h; sourceTree = "<group>"; };
+		E2A73273139EC6800087B84E /* SyphonMessageReceiver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SyphonMessageReceiver.h; path = "../../../Syphon Framework/SyphonMessageReceiver.h"; sourceTree = "<group>"; };
+		E2A73274139EC6800087B84E /* SyphonMessageReceiver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SyphonMessageReceiver.m; path = "../../../Syphon Framework/SyphonMessageReceiver.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +70,8 @@
 		080E96DDFE201D6D7F000001 /* From Syphon */ = {
 			isa = PBXGroup;
 			children = (
+				E2A73273139EC6800087B84E /* SyphonMessageReceiver.h */,
+				E2A73274139EC6800087B84E /* SyphonMessageReceiver.m */,
 				BD7658F1126675EC00495BA2 /* SyphonMessageQueue.h */,
 				BD7658F2126675EC00495BA2 /* SyphonMessageQueue.m */,
 				BD76584A12666EC800495BA2 /* SyphonBuildMacros.h */,
@@ -72,6 +81,8 @@
 				BDB8DAA41211F70A0028D250 /* SyphonMessageSender.m */,
 				BDB8DAA51211F70A0028D250 /* SyphonCFMessageSender.h */,
 				BDB8DAA61211F70A0028D250 /* SyphonCFMessageSender.m */,
+				E2A73265139EBF240087B84E /* SyphonCFMessageReceiver.h */,
+				E2A73266139EBF240087B84E /* SyphonCFMessageReceiver.m */,
 				BDB8DAA71211F70A0028D250 /* SyphonMachMessageSender.h */,
 				BDB8DAA81211F70A0028D250 /* SyphonMachMessageSender.m */,
 				BD40D86C1271BF6700DFB266 /* SyphonDispatch.h */,
@@ -121,6 +132,7 @@
 		29B97315FDCFA39411CA2CEA /* App */ = {
 			isa = PBXGroup;
 			children = (
+				E2A73269139EC3E80087B84E /* TestMessages.h */,
 				256AC3D80F4B6AC300CF3369 /* ServerAppDelegate.h */,
 				256AC3D90F4B6AC300CF3369 /* ServerAppDelegate.m */,
 				256AC3F00F4B6AF500CF3369 /* Server_Prefix.pch */,
@@ -218,6 +230,8 @@
 				BDB8DB65121206AE0028D250 /* SyphonMessaging.m in Sources */,
 				BD7658F5126675EC00495BA2 /* SyphonMessageQueue.m in Sources */,
 				BD40D86E1271BF6E00DFB266 /* SyphonDispatch.c in Sources */,
+				E2A73267139EBF240087B84E /* SyphonCFMessageReceiver.m in Sources */,
+				E2A73275139EC6800087B84E /* SyphonMessageReceiver.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

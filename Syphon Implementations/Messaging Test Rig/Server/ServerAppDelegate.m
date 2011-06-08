@@ -28,37 +28,56 @@
  */
 
 #import "ServerAppDelegate.h"
-#import "SyphonMessaging.h"
+#import "TestMessages.h"
 
 @implementation ServerAppDelegate
 
-@synthesize window, shouldStop;
+@synthesize window;
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-	SyphonMessageSender *sender = [[SyphonMessageSender alloc] initForName:@"SYPHON_TEST"
-//																	  protocol:SyphonMessagingProtocolMachMessage
+- (void)sendMessageToConnection:(NSString *)name
+{
+    SyphonMessageSender *sender = [[SyphonMessageSender alloc] initForName:name
+                                   //							  protocol:SyphonMessagingProtocolMachMessage
 																  protocol:SyphonMessagingProtocolCFMessage
 													   invalidationHandler:^(void) {
-														   NSLog(@"invalidation handler was called");
+														   NSLog(@"ERROR: Invalidation handler was called for SyphonMessageSender for %@", name);
 													   }];
-	unsigned int count = 0;
-	NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
-	for (int i = 0; i < 100000; i++)
-	{
-		if (sender)
-		{
-			NSDate *date = [NSDate date];
-			[sender send:date ofType:32];
-			count++;
-		}
-	}
-	[sender release];
-	NSTimeInterval duration = [NSDate timeIntervalSinceReferenceDate] - start;
-	NSLog(@"%u sends over %f seconds", count, duration);
-	NSLog(@"%f FPS", count / duration);
+    [sender send:name ofType:TestMessageTestingConnection];
+    [sender release];
+
+}
+
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    _receiver = [[SyphonMessageReceiver alloc] initForName:@"SYPHON_TEST"
+                                                  protocol:SyphonMessagingProtocolCFMessage
+                                                   handler:^(id payload, uint32_t type) {
+                                                       switch (type) {
+                                                           case TestMessageDate:
+                                                               _frameCount++;
+                                                               _durations += -[(NSDate *)payload timeIntervalSinceNow] * 1000;
+                                                               break;
+                                                           case TestMessageAwaitingConnection:
+                                                               [self sendMessageToConnection:(NSString *)payload];
+                                                               break;
+                                                           default:
+                                                               NSLog(@"ERROR: Unexpected message type");
+                                                               break;
+                                                       }
+                                                   }];
+    if (!_receiver)
+        NSLog(@"Couldn't create receiver.");
+    else
+        NSLog(@"Ready for client.");
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification
 {
+    [_receiver invalidate];
+    [_receiver release];
+    _receiver = nil;
+    if (_frameCount)
+		NSLog(@"Received %lu frames with average latency %f ms. (dropped frames are OK)", _frameCount, _durations / _frameCount);
+	else
+		NSLog(@"ERROR: Received no frames.");
 }
 @end

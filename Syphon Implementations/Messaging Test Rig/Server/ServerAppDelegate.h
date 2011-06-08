@@ -28,12 +28,14 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import "SyphonMessaging.h"
 
 @interface ServerAppDelegate : NSObject <NSApplicationDelegate> {
     NSWindow *window;
-	BOOL shouldStop;
+    SyphonMessageReceiver *_receiver;
+    NSUInteger _frameCount;
+	double _durations;
 }
-@property (readwrite, assign) BOOL shouldStop;
 @property (assign) IBOutlet NSWindow *window;
 
 @end

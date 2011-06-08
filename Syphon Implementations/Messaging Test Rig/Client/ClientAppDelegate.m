@@ -28,33 +28,127 @@
  */
 
 #import "ClientAppDelegate.h"
+#import "TestMessages.h"
 
 @implementation ClientAppDelegate
 
 @synthesize window;
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {	
-	_receiver = [[SyphonMessageReceiver alloc] initForName:@"SYPHON_TEST"
-//												  protocol:SyphonMessagingProtocolMachMessage
-												  protocol:SyphonMessagingProtocolCFMessage
-												   handler:^(id <NSCoding> data, uint32_t type) {
-													   _frameCount++;
-													   _durations += -[(NSDate *)data timeIntervalSinceNow] * 1000;
-//		NSLog(@"%u, %@", type, (NSString *)data);
-//		usleep(10000);
-												   }];
-	if (_receiver == nil)
-	{
-		NSLog(@"Couldn't create receiver");
-	}
+- (void)noteNewConnection:(NSString *)name
+{
+    if (!name)
+    {
+        NSLog(@"ERROR: Connection missing payload (should be the connection's name).");
+    }
+    else
+    {
+        @synchronized(self)
+        {
+            SyphonMessageReceiver *found;
+            for (SyphonMessageReceiver *next in _waitingConnections) {
+                if ([next.name isEqualToString:name])
+                {
+                    found = next;
+                    break;
+                }
+            }
+            if (found)
+            {
+                [_waitingConnections removeObject:found];
+                if ([_waitingConnections count] == 0)
+                {
+                    NSLog(@"SUCCESS: All connections were acknowledged");
+                    [[NSApplication sharedApplication] terminate:self];
+                }
+            }
+            else
+            {
+                NSLog(@"ERROR: Got notification for an unknown connection.");
+            }
+        }
+    }
+}
+
+- (void)testThroughput
+{
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    NSLog(@"Testing throughput");
+    unsigned int count = 0;
+    NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
+    for (int i = 0; i < 100000; i++)
+    {
+        NSDate *date = [NSDate date];
+        [_sender send:date ofType:TestMessageDate];
+        count++;
+    }
+    NSTimeInterval duration = [NSDate timeIntervalSinceReferenceDate] - start;
+    NSLog(@"%u sends over %f seconds (average time to send is %d µs)", count, duration, (int)(duration / count * 1000000));
+    NSLog(@"%f FPS", count / duration);
+    [pool drain];
+}
+
+- (void)testConnections
+{
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    NSLog(@"Testing new connections");
+    for (int i = 0; i < 100; i++) {
+        NSString *name = [NSString stringWithFormat:@"SYPHON_TEST_%d", i+1];
+        SyphonMessageReceiver *receiver = [[SyphonMessageReceiver alloc] initForName:name
+                                                                            protocol:SyphonMessagingProtocolCFMessage
+                                                                             handler:^(id payload, uint32_t type) {
+                                                                                 [self noteNewConnection:(NSString *)payload];
+                                                                             }];
+        @synchronized(self)
+        {
+            [_waitingConnections addObject:receiver];
+        }
+        [receiver release];
+        [_sender send:name ofType:TestMessageAwaitingConnection];
+    }
+    usleep(USEC_PER_SEC * 1.0);
+    [[NSApplication sharedApplication] terminate:self];
+    [pool drain];
+}
+
+- (void)runTests
+{
+    [self testThroughput];
+    [self testConnections];
+}
+
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification
+{
+    _waitingConnections = [[NSMutableSet alloc] initWithCapacity:100];
+    
+	_sender = [[SyphonMessageSender alloc] initForName:@"SYPHON_TEST"
+//                                            protocol:SyphonMessagingProtocolMachMessage
+                                              protocol:SyphonMessagingProtocolCFMessage
+                                   invalidationHandler:^(void) {
+                                       NSLog(@"invalidation handler was called for sender");
+                                   }];
+    if (!_sender)
+    {
+        NSLog(@"ERROR: Couldn't create SyphonMessageSender. Make sure you launch the server before the client.");
+        [[NSApplication sharedApplication] terminate:self];
+    }
+    else
+    {
+        [self performSelectorInBackground:@selector(runTests) withObject:nil];
+        _didStartTests = YES;
+    }
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification
 {
-	if (_frameCount)
-		NSLog(@"Received %u frames with average latency %f ms.", _frameCount, _durations / _frameCount);
-	else
-		NSLog(@"Received no frames.");
-
+    if (_didStartTests)
+    {
+        @synchronized(self)
+        {
+            if ([_waitingConnections count] != 0)
+            {
+                NSLog(@"ERROR: Some connections weren't made - got %u of 100", 100 - [_waitingConnections count]);
+            }
+        }
+    }
 }
 @end

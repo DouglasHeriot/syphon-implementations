@@ -32,9 +32,9 @@
 
 @interface ClientAppDelegate : NSObject <NSApplicationDelegate> {
     NSWindow *window;
-	SyphonMessageReceiver *_receiver;
-	NSUInteger _frameCount;
-	double _durations;
+    NSMutableSet *_waitingConnections;
+    SyphonMessageSender *_sender;
+    BOOL _didStartTests;
 }
 
 @property (assign) IBOutlet NSWindow *window;

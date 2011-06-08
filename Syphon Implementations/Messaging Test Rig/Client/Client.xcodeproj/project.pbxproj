@@ -16,6 +16,10 @@
 		BDB8DA8D1211F6C90028D250 /* SyphonCFMessageReceiver.m in Sources */ = {isa = PBXBuildFile; fileRef = BDB8DA891211F6C90028D250 /* SyphonCFMessageReceiver.m */; };
 		BDB8DA8E1211F6C90028D250 /* SyphonMachMessageReceiver.m in Sources */ = {isa = PBXBuildFile; fileRef = BDB8DA8B1211F6C90028D250 /* SyphonMachMessageReceiver.m */; };
 		BDB8DB40121205A90028D250 /* SyphonMessaging.m in Sources */ = {isa = PBXBuildFile; fileRef = BDB8DB3F121205A90028D250 /* SyphonMessaging.m */; };
+		E2A7325B139EBE950087B84E /* SyphonCFMessageSender.m in Sources */ = {isa = PBXBuildFile; fileRef = E2A7325A139EBE950087B84E /* SyphonCFMessageSender.m */; };
+		E2A7326E139EC6420087B84E /* SyphonMessageQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = E2A7326B139EC6420087B84E /* SyphonMessageQueue.m */; };
+		E2A7326F139EC6420087B84E /* SyphonMessageSender.m in Sources */ = {isa = PBXBuildFile; fileRef = E2A7326D139EC6420087B84E /* SyphonMessageSender.m */; };
+		E2A73272139EC6570087B84E /* SyphonDispatch.c in Sources */ = {isa = PBXBuildFile; fileRef = E2A73270139EC6570087B84E /* SyphonDispatch.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +44,15 @@
 		BDB8DA8B1211F6C90028D250 /* SyphonMachMessageReceiver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SyphonMachMessageReceiver.m; path = "../../../Syphon Framework/SyphonMachMessageReceiver.m"; sourceTree = SOURCE_ROOT; };
 		BDB8DB3E121205A90028D250 /* SyphonMessaging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SyphonMessaging.h; path = "../../../Syphon Framework/SyphonMessaging.h"; sourceTree = SOURCE_ROOT; };
 		BDB8DB3F121205A90028D250 /* SyphonMessaging.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SyphonMessaging.m; path = "../../../Syphon Framework/SyphonMessaging.m"; sourceTree = SOURCE_ROOT; };
+		E2A73259139EBE950087B84E /* SyphonCFMessageSender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SyphonCFMessageSender.h; path = "../../../Syphon Framework/SyphonCFMessageSender.h"; sourceTree = "<group>"; };
+		E2A7325A139EBE950087B84E /* SyphonCFMessageSender.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SyphonCFMessageSender.m; path = "../../../Syphon Framework/SyphonCFMessageSender.m"; sourceTree = "<group>"; };
+		E2A7326A139EC6420087B84E /* SyphonMessageQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SyphonMessageQueue.h; path = "../../../Syphon Framework/SyphonMessageQueue.h"; sourceTree = "<group>"; };
+		E2A7326B139EC6420087B84E /* SyphonMessageQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SyphonMessageQueue.m; path = "../../../Syphon Framework/SyphonMessageQueue.m"; sourceTree = "<group>"; };
+		E2A7326C139EC6420087B84E /* SyphonMessageSender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SyphonMessageSender.h; path = "../../../Syphon Framework/SyphonMessageSender.h"; sourceTree = "<group>"; };
+		E2A7326D139EC6420087B84E /* SyphonMessageSender.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SyphonMessageSender.m; path = "../../../Syphon Framework/SyphonMessageSender.m"; sourceTree = "<group>"; };
+		E2A73270139EC6570087B84E /* SyphonDispatch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = SyphonDispatch.c; path = "../../../Syphon Framework/SyphonDispatch.c"; sourceTree = "<group>"; };
+		E2A73271139EC6570087B84E /* SyphonDispatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SyphonDispatch.h; path = "../../../Syphon Framework/SyphonDispatch.h"; sourceTree = "<group>"; };
+		E2A73276139EC7B70087B84E /* TestMessages.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestMessages.h; path = ../TestMessages.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +70,7 @@
 		080E96DDFE201D6D7F000001 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				E2A73276139EC7B70087B84E /* TestMessages.h */,
 				256AC3D80F4B6AC300CF3369 /* ClientAppDelegate.h */,
 				256AC3D90F4B6AC300CF3369 /* ClientAppDelegate.m */,
 				256AC3F00F4B6AF500CF3369 /* Client_Prefix.pch */,
@@ -125,6 +139,12 @@
 		BD76581612666D2E00495BA2 /* From Syphon */ = {
 			isa = PBXGroup;
 			children = (
+				E2A73270139EC6570087B84E /* SyphonDispatch.c */,
+				E2A73271139EC6570087B84E /* SyphonDispatch.h */,
+				E2A7326A139EC6420087B84E /* SyphonMessageQueue.h */,
+				E2A7326B139EC6420087B84E /* SyphonMessageQueue.m */,
+				E2A7326C139EC6420087B84E /* SyphonMessageSender.h */,
+				E2A7326D139EC6420087B84E /* SyphonMessageSender.m */,
 				BD76581712666D4D00495BA2 /* SyphonBuildMacros.h */,
 				BDB8DB3E121205A90028D250 /* SyphonMessaging.h */,
 				BDB8DB3F121205A90028D250 /* SyphonMessaging.m */,
@@ -132,6 +152,8 @@
 				BDB8DA871211F6C90028D250 /* SyphonMessageReceiver.m */,
 				BDB8DA881211F6C90028D250 /* SyphonCFMessageReceiver.h */,
 				BDB8DA891211F6C90028D250 /* SyphonCFMessageReceiver.m */,
+				E2A73259139EBE950087B84E /* SyphonCFMessageSender.h */,
+				E2A7325A139EBE950087B84E /* SyphonCFMessageSender.m */,
 				BDB8DA8A1211F6C90028D250 /* SyphonMachMessageReceiver.h */,
 				BDB8DA8B1211F6C90028D250 /* SyphonMachMessageReceiver.m */,
 			);
@@ -206,6 +228,10 @@
 				BDB8DA8D1211F6C90028D250 /* SyphonCFMessageReceiver.m in Sources */,
 				BDB8DA8E1211F6C90028D250 /* SyphonMachMessageReceiver.m in Sources */,
 				BDB8DB40121205A90028D250 /* SyphonMessaging.m in Sources */,
+				E2A7325B139EBE950087B84E /* SyphonCFMessageSender.m in Sources */,
+				E2A7326E139EC6420087B84E /* SyphonMessageQueue.m in Sources */,
+				E2A7326F139EC6420087B84E /* SyphonMessageSender.m in Sources */,
+				E2A73272139EC6570087B84E /* SyphonDispatch.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
