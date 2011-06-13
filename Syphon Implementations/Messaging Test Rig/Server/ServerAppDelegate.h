@@ -34,6 +34,7 @@
     NSWindow *window;
     SyphonMessageReceiver *_receiver;
     NSUInteger _frameCount;
+    NSUInteger _newConnectionCount;
 	double _durations;
 }
 @property (assign) IBOutlet NSWindow *window;

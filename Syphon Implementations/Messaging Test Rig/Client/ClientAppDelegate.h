@@ -35,6 +35,7 @@
     NSMutableSet *_waitingConnections;
     SyphonMessageSender *_sender;
     BOOL _didStartTests;
+    NSUInteger _connectionsServerSaw;
 }
 
 @property (assign) IBOutlet NSWindow *window;

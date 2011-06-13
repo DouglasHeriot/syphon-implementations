@@ -57,8 +57,23 @@
                                                                _durations += -[(NSDate *)payload timeIntervalSinceNow] * 1000;
                                                                break;
                                                            case TestMessageAwaitingConnection:
+                                                               _newConnectionCount++;
                                                                [self sendMessageToConnection:(NSString *)payload];
                                                                break;
+                                                           case TestMessageAwaitingConnectionCount:
+                                                           {
+                                                               NSLog(@"Sending connection count (%lu)", (unsigned long)_newConnectionCount);
+                                                               SyphonMessageSender *sender = [[SyphonMessageSender alloc] initForName:(NSString *)payload
+                                                                                              //							  protocol:SyphonMessagingProtocolMachMessage
+                                                                                                                             protocol:SyphonMessagingProtocolCFMessage
+                                                                                                                  invalidationHandler:^(void) {
+                                                                                                                      NSLog(@"ERROR: Invalidation handler was called for SyphonMessageSender for %@", (NSString *)payload);
+                                                                                                                  }];
+                                                               [sender send:[NSNumber numberWithUnsignedInteger:_newConnectionCount] ofType:TestMessageConnectionCount];
+                                                               [sender release];
+                                                               [[NSApplication sharedApplication] terminate:self];
+                                                               break;
+                                                           }
                                                            default:
                                                                NSLog(@"ERROR: Unexpected message type");
                                                                break;
@@ -75,6 +90,7 @@
     [_receiver invalidate];
     [_receiver release];
     _receiver = nil;
+    NSLog(@"received %lu connection requests", _newConnectionCount);
     if (_frameCount)
 		NSLog(@"Received %lu frames with average latency %f ms. (dropped frames are OK)", _frameCount, _durations / _frameCount);
 	else
