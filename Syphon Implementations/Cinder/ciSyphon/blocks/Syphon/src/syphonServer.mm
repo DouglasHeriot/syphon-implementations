@@ -97,7 +97,7 @@ void syphonServer::publishTexture(ci::gl::Texture* inputTexture)
 {
 	if(inputTexture){
 		NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-		GLuint texID = inputTexture->getId();
+		GLuint texID = inputTexture->getTextureId();
 		if (!mSyphon)
 		{
 			mSyphon = [[SyphonServer alloc] initWithName:@"Untitled" context:CGLGetCurrentContext() options:nil];
