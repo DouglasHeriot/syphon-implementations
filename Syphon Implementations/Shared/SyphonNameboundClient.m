@@ -40,6 +40,7 @@
 	if (self)
 	{
 		_lock = OS_SPINLOCK_INIT;
+        _searchPending = YES;
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleServerAnnounce:) name:SyphonServerAnnounceNotification object:nil];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleServerUpdate:) name:SyphonServerUpdateNotification object:nil];
 	}
@@ -175,8 +176,7 @@
 		searchApp = nil;
 	}
 
-	if ((searchName != nil || searchApp != nil)
-		&& (!searchName || [[description objectForKey:SyphonServerDescriptionNameKey] isEqualToString:searchName])
+	if ((!searchName || [[description objectForKey:SyphonServerDescriptionNameKey] isEqualToString:searchName])
 		&& (!searchApp || [[description objectForKey:SyphonServerDescriptionAppNameKey] isEqualToString:searchApp]))
 	{
 			return YES;
@@ -215,7 +215,8 @@
 - (void)handleServerAnnounce:(NSNotification *)notification
 {
 	NSDictionary *newInfo = [notification object];
-	if (![self parametersMatchDescription:[_client serverDescription]]
+    // If we don't have a client, or our current client doesn't match our parameters any more
+	if ((_client == nil || ![self parametersMatchDescription:[_client serverDescription]])
 		&& [self parametersMatchDescription:newInfo])
 	{
 		SyphonClient *newClient = [[SyphonClient alloc] initWithServerDescription:newInfo options:nil newFrameHandler:nil];
