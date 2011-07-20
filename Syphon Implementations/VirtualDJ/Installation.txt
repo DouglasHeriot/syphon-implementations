@@ -1,0 +1,4 @@
+Install to ~/Library/VirtualDJ/Plugins/VideoEffect/
+
+Syphon Server for Virtual DJ
+http://syphon.v002.info

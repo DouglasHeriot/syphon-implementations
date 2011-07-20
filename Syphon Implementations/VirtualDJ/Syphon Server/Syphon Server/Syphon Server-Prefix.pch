@@ -1,0 +1,7 @@
+//
+// Prefix header for all source files of the 'Syphon Server' target in the 'Syphon Server' project
+//
+
+#ifdef __OBJC__
+    #import <Cocoa/Cocoa.h>
+#endif
