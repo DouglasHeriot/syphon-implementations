@@ -38,6 +38,30 @@ void ofxSyphonClient::setup()
     [pool drain];
 }
 
+string ofxSyphonClient::getApplicationName()
+{
+    std::string result = "";
+    if (bSetup)
+    {
+        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+        result = [[(SyphonNameboundClient*)mClient appName] UTF8String];
+        [pool drain];
+    }
+    return result;
+}
+
+string ofxSyphonClient::getServerName()
+{
+    std::string result = "";
+    if (bSetup)
+    {
+        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+        result = [[(SyphonNameboundClient*)mClient name] UTF8String];
+        [pool drain];
+    }
+    return result;
+}
+
 void ofxSyphonClient::setApplicationName(string appName)
 {
     if(bSetup)

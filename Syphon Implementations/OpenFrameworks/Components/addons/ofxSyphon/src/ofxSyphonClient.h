@@ -16,6 +16,9 @@ class ofxSyphonClient {
 	
     void setup ();
     
+    string getApplicationName();
+    string getServerName();
+    
     void setApplicationName(string appName);
     void setServerName(string serverName);
   
