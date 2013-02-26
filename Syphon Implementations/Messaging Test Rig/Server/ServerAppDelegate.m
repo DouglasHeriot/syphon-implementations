@@ -69,13 +69,9 @@
                                                                                                                   invalidationHandler:^(void) {
                                                                                                                       NSLog(@"ERROR: Invalidation handler was called for SyphonMessageSender for %@", (NSString *)payload);
                                                                                                                   }];
-                                                               if (sender == nil)
-                                                               {
-                                                                   NSLog(@"ERROR: couldn't create sender");
-                                                               }
                                                                [sender send:[NSNumber numberWithUnsignedInteger:_newConnectionCount] ofType:TestMessageConnectionCount];
                                                                [sender release];
-//                                                               [[NSApplication sharedApplication] terminate:self];
+                                                               [[NSApplication sharedApplication] terminate:self];
                                                                break;
                                                            }
                                                            default:
