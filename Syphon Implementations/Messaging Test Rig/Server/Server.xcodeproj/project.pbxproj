@@ -48,6 +48,7 @@
 		BDB8DAA81211F70A0028D250 /* SyphonMachMessageSender.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SyphonMachMessageSender.m; path = "../../../Syphon Framework/SyphonMachMessageSender.m"; sourceTree = SOURCE_ROOT; };
 		BDB8DB63121206AE0028D250 /* SyphonMessaging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SyphonMessaging.h; path = "../../../Syphon Framework/SyphonMessaging.h"; sourceTree = SOURCE_ROOT; };
 		BDB8DB64121206AE0028D250 /* SyphonMessaging.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SyphonMessaging.m; path = "../../../Syphon Framework/SyphonMessaging.m"; sourceTree = SOURCE_ROOT; };
+		E2A6551A158BEBC500DDE852 /* Server.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Server.entitlements; sourceTree = "<group>"; };
 		E2A73265139EBF240087B84E /* SyphonCFMessageReceiver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SyphonCFMessageReceiver.h; path = "../../../Syphon Framework/SyphonCFMessageReceiver.h"; sourceTree = "<group>"; };
 		E2A73266139EBF240087B84E /* SyphonCFMessageReceiver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SyphonCFMessageReceiver.m; path = "../../../Syphon Framework/SyphonCFMessageReceiver.m"; sourceTree = "<group>"; };
 		E2A73269139EC3E80087B84E /* TestMessages.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestMessages.h; path = ../TestMessages.h; sourceTree = "<group>"; };
@@ -120,6 +121,7 @@
 		29B97314FDCFA39411CA2CEA /* Server */ = {
 			isa = PBXGroup;
 			children = (
+				E2A6551A158BEBC500DDE852 /* Server.entitlements */,
 				080E96DDFE201D6D7F000001 /* From Syphon */,
 				29B97315FDCFA39411CA2CEA /* App */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
@@ -187,7 +189,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0410;
+				LastUpgradeCheck = 0430;
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Server" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -264,6 +266,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_ENTITLEMENTS = Server.entitlements;
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
@@ -280,6 +284,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_ENTITLEMENTS = Server.entitlements;
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;

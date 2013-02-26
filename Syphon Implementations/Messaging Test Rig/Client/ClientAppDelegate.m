@@ -30,7 +30,7 @@
 #import "ClientAppDelegate.h"
 #import "TestMessages.h"
 
-#define kNumTestConnections 100
+#define kNumTestConnections 1
 
 @implementation ClientAppDelegate
 
@@ -131,14 +131,14 @@
         [_waitingConnections addObject:receiver];
     }
     [_sender send:@"SYPHON_TEST_CONNECTION_COUNT" ofType:TestMessageAwaitingConnectionCount];
-    usleep(USEC_PER_SEC * 2.0);
-    [[NSApplication sharedApplication] terminate:self];
+//    usleep(USEC_PER_SEC * 2.0);
+//    [[NSApplication sharedApplication] terminate:self];
     [pool drain];
 }
 
 - (void)runTests
 {
-    [self testThroughput];
+//    [self testThroughput];
     [self testConnections];
 }
 
