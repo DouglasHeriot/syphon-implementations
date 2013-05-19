@@ -46,7 +46,7 @@
 	
 	CGLContextObj cgl_ctx = [[self openGLContext] CGLContextObj];
 	
-	NSRect frame = self.frame;
+	NSRect frame = [self convertRectToBacking:self.frame];
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 		
